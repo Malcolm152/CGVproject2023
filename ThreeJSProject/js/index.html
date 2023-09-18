@@ -1,0 +1,79 @@
+<html>
+    <head>
+        <title>
+            <style>
+                body { margin: 0 }
+                canvas { width: 100%; height: 100%;};
+            </style>
+
+            <body>
+                <script src ="three.js"></script>
+                <script>
+                 var scene = new THREE.Scene();
+                var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+
+                var carModel = new THREE.Object3D();
+                carModel.load('car.obj');
+
+                var objectModels = [];
+                for (var i = 0; i < 10; i++) {
+                var objectModel = new THREE.Object3D();
+                objectModel.load('object.obj');
+                objectModels.push(objectModel);
+                }
+
+                var physicsEngine = new THREE.PhysicsEngine(scene);
+                physicsEngine.add(carModel);
+                physicsEngine.add(objectModels);
+
+                var levels = [
+                {
+                    objects: objectModels.slice(0, 5),
+                },
+                {
+                    objects: objectModels.slice(0, 10),
+                },
+                {
+                    objects: objectModels.slice(0, 15),
+                },
+                ];
+
+                var ambientLight = new THREE.AmbientLight(0x444444);
+                scene.add(ambientLight);
+
+                var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                directionalLight.position.set(1, 1, 1);
+                scene.add(directionalLight);
+
+                var controls = new THREE.OrbitControls(camera, scene);
+
+                var score = 0;
+
+                var gameLoop = function() {
+                physicsEngine.update();
+
+                // Check if the car or bike has collided with an object.
+                for (var i = 0; i < objectModels.length; i++) {
+                    if (carModel.intersectsObject(objectModels[i])) {
+                    // The car or bike has collided with an object, so the game is over.
+                    alert('Game over! Your score was ' + score);
+                    return;
+                    }
+                }
+
+                // Increase the score.
+                score++;
+
+                // Update the camera position.
+                controls.update();
+
+                requestAnimationFrame(gameLoop);
+};
+
+gameLoop();
+                </script>
+            </body>
+
+        </title>
+    </head>
+</html>
